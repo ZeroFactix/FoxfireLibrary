@@ -1,0 +1,98 @@
+[
+  {
+    "id": "cordless-drill",
+    "name": "Cordless Drill",
+    "category": "Tools",
+    "description": "18V cordless drill with two batteries, charger, and a set of bits. Great for anything from hanging shelves to deck screws.",
+    "condition": "good",
+    "lendType": "loan",
+    "status": "available",
+    "tags": ["power tools", "drill", "diy"]
+  },
+  {
+    "id": "pressure-washer",
+    "name": "Electric Pressure Washer",
+    "category": "Tools",
+    "description": "1800 PSI electric pressure washer, comes with three nozzle tips and a soap reservoir. Good for driveways, decks, and siding.",
+    "condition": "good",
+    "lendType": "rental",
+    "rentalRate": { "amount": 15, "period": "day" },
+    "status": "lent_out",
+    "currentHolder": { "name": "Marcus", "dueBack": "2026-07-28" },
+    "tags": ["outdoor", "cleaning"]
+  },
+  {
+    "id": "extension-ladder",
+    "name": "24ft Extension Ladder",
+    "category": "Tools",
+    "description": "Aluminum extension ladder, extends to 24 feet. Rated for 250 lbs. Two-person carry recommended.",
+    "condition": "fair",
+    "lendType": "loan",
+    "status": "available",
+    "tags": ["ladder", "roofing"]
+  },
+  {
+    "id": "dslr-camera",
+    "name": "Canon DSLR Camera Kit",
+    "category": "Electronics",
+    "description": "Canon EOS body with 18-55mm and 50mm prime lenses, extra battery, and a shoulder bag.",
+    "condition": "good",
+    "lendType": "rental",
+    "rentalRate": { "amount": 20, "period": "day" },
+    "status": "available",
+    "tags": ["camera", "photography"]
+  },
+  {
+    "id": "projector",
+    "name": "Portable Projector",
+    "category": "Electronics",
+    "description": "1080p mini projector with HDMI and built-in speaker. Comes with a travel case and a small tripod stand.",
+    "condition": "new",
+    "lendType": "loan",
+    "status": "reserved",
+    "currentHolder": { "name": "Priya" },
+    "tags": ["movie night", "presentations"]
+  },
+  {
+    "id": "camping-tent",
+    "name": "4-Person Camping Tent",
+    "category": "Outdoor",
+    "description": "Dome tent, sets up in about 10 minutes. Includes rainfly and footprint. Comfortably fits 4 with gear.",
+    "condition": "good",
+    "lendType": "loan",
+    "status": "available",
+    "tags": ["camping", "outdoors"]
+  },
+  {
+    "id": "camping-stove",
+    "name": "Two-Burner Camp Stove",
+    "category": "Outdoor",
+    "description": "Propane camp stove with two burners. Propane canister not included.",
+    "condition": "fair",
+    "lendType": "loan",
+    "status": "available",
+    "tags": ["camping", "cooking"]
+  },
+  {
+    "id": "board-game-catan",
+    "name": "Catan (Board Game)",
+    "category": "Games",
+    "description": "Classic Settlers of Catan, base game. All pieces accounted for, checked after every return.",
+    "condition": "good",
+    "lendType": "loan",
+    "status": "available",
+    "tags": ["board game", "party"]
+  },
+  {
+    "id": "carpet-cleaner",
+    "name": "Carpet Cleaner Machine",
+    "category": "Tools",
+    "description": "Upright carpet and upholstery cleaner. Bring your own solution or ask for a top-up.",
+    "condition": "worn",
+    "lendType": "rental",
+    "rentalRate": { "amount": 10, "period": "day" },
+    "status": "lent_out",
+    "currentHolder": { "name": "Devon", "dueBack": "2026-07-24" },
+    "tags": ["cleaning", "carpet"]
+  }
+]
