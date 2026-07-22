@@ -1,16 +1,42 @@
-import itemsData from "@/data/items.json";
+import { eq } from "drizzle-orm";
+import { db } from "@/lib/db";
+import { items as itemsTable } from "@/lib/db/schema";
 import type { Item } from "@/lib/types";
 
-const items = itemsData as Item[];
+type ItemRow = typeof itemsTable.$inferSelect;
 
-export function getAllItems(): Item[] {
-  return items;
+function rowToItem(row: ItemRow): Item {
+  return {
+    id: row.id,
+    name: row.name,
+    category: row.category,
+    description: row.description,
+    photoUrl: row.photoUrl ?? undefined,
+    condition: row.condition,
+    lendType: row.lendType,
+    rentalRate:
+      row.rentalRateAmount != null && row.rentalRatePeriod
+        ? { amount: row.rentalRateAmount, period: row.rentalRatePeriod }
+        : undefined,
+    status: row.status,
+    currentHolder: row.currentHolderName
+      ? { name: row.currentHolderName, dueBack: row.currentHolderDueBack ?? undefined }
+      : undefined,
+    tags: row.tags ?? undefined,
+  };
 }
 
-export function getItemById(id: string): Item | undefined {
-  return items.find((item) => item.id === id);
+export async function getAllItems(): Promise<Item[]> {
+  const rows = await db.select().from(itemsTable);
+  return rows.map(rowToItem);
 }
 
-export function getAllCategories(): string[] {
-  return Array.from(new Set(items.map((item) => item.category))).sort();
+export async function getItemById(id: string): Promise<Item | undefined> {
+  const rows = await db.select().from(itemsTable).where(eq(itemsTable.id, id));
+  return rows[0] ? rowToItem(rows[0]) : undefined;
+}
+
+export async function getAllCategories(): Promise<string[]> {
+  const rows = await db.select().from(itemsTable);
+  return Array.from(new Set(rows.map((row) => row.category))).sort();
 }

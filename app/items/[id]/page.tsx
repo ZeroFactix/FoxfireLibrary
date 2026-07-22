@@ -3,8 +3,9 @@ import { notFound } from "next/navigation";
 import StatusBadge from "@/components/StatusBadge";
 import { getAllItems, getItemById } from "@/lib/items";
 
-export function generateStaticParams() {
-  return getAllItems().map((item) => ({ id: item.id }));
+export async function generateStaticParams() {
+  const items = await getAllItems();
+  return items.map((item) => ({ id: item.id }));
 }
 
 export default async function ItemDetailPage({
@@ -13,7 +14,7 @@ export default async function ItemDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const item = getItemById(id);
+  const item = await getItemById(id);
 
   if (!item) {
     notFound();
