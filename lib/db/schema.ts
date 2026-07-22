@@ -71,3 +71,22 @@ export const items = pgTable("item", {
   currentHolderDueBack: text("current_holder_due_back"),
   tags: text("tags").array(),
 });
+
+export const borrowRequests = pgTable("borrow_request", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  itemId: text("item_id")
+    .notNull()
+    .references(() => items.id, { onDelete: "cascade" }),
+  requesterId: text("requester_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  message: text("message"),
+  startDate: text("start_date"),
+  endDate: text("end_date"),
+  status: text("status")
+    .notNull()
+    .$type<"active" | "lent_out" | "returned" | "cancelled">(),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+});

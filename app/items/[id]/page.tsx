@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { auth } from "@/auth";
+import SignInButton from "@/components/auth/SignInButton";
 import StatusBadge from "@/components/StatusBadge";
+import RequestActionButton from "@/components/requests/RequestActionButton";
+import ReserveForm from "@/components/requests/ReserveForm";
+import { cancelOwnRequestAction } from "@/app/requests/actions";
 import { getItemById } from "@/lib/items";
+import { getActiveRequestForItem } from "@/lib/requests";
 
 // Rendered per request so item data (status, current holder) is always live.
 export const dynamic = "force-dynamic";
@@ -17,6 +23,12 @@ export default async function ItemDetailPage({
   if (!item) {
     notFound();
   }
+
+  const session = await auth();
+  const userId = session?.user?.id;
+  const activeRequest =
+    item.status === "available" ? null : await getActiveRequestForItem(item.id);
+  const isMine = !!activeRequest && activeRequest.requesterId === userId;
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-6 py-10 sm:px-10">
@@ -70,14 +82,37 @@ export default async function ItemDetailPage({
         )}
       </dl>
 
-      <a
-        href={`mailto:zerofactix@gmail.com?subject=${encodeURIComponent(
-          `Borrow request: ${item.name}`
-        )}`}
-        className="inline-flex w-fit items-center justify-center rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
-      >
-        Request to borrow
-      </a>
+      {item.status === "available" ? (
+        userId ? (
+          <ReserveForm itemId={item.id} />
+        ) : (
+          <div className="flex flex-col gap-3 rounded-lg border border-black/10 p-4 dark:border-white/15">
+            <p className="text-sm text-black/70 dark:text-white/70">
+              Sign in to reserve this item.
+            </p>
+            <SignInButton />
+          </div>
+        )
+      ) : isMine ? (
+        <div className="flex flex-col gap-3 rounded-lg border border-black/10 p-4 dark:border-white/15">
+          <p className="text-sm text-black/70 dark:text-white/70">
+            You have this {item.status === "lent_out" ? "borrowed" : "reserved"}
+            {activeRequest?.endDate ? ` until ${activeRequest.endDate}` : ""}.
+          </p>
+          <RequestActionButton
+            action={cancelOwnRequestAction}
+            requestId={activeRequest!.id}
+            label="Cancel my reservation"
+            variant="danger"
+            confirmMessage="Cancel your reservation for this item?"
+          />
+        </div>
+      ) : (
+        <p className="text-sm text-black/60 dark:text-white/60">
+          This item is currently{" "}
+          {item.status === "lent_out" ? "lent out" : "reserved"}. Check back later.
+        </p>
+      )}
     </main>
   );
 }
