@@ -43,12 +43,20 @@ export default async function ManagePage() {
             {items.length} item{items.length === 1 ? "" : "s"} in the library.
           </p>
         </div>
-        <Link
-          href="/manage/new"
-          className="inline-flex items-center justify-center rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
-        >
-          Add item
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/manage/requests"
+            className="inline-flex items-center justify-center rounded-full border border-black/15 px-4 py-2 text-sm font-medium transition hover:border-black/40 dark:border-white/20 dark:hover:border-white/40"
+          >
+            Reservations
+          </Link>
+          <Link
+            href="/manage/new"
+            className="inline-flex items-center justify-center rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
+          >
+            Add item
+          </Link>
+        </div>
       </div>
 
       <div className="flex flex-col gap-3">
