@@ -1,44 +1,59 @@
-# The Lending Library
+# Foxfire Library
 
 A personal catalog of tools, gear, and games available to lend or rent out to
-friends. Built with Next.js and Tailwind CSS, exported as a fully static site.
+friends. Built with Next.js, Tailwind CSS, a Neon Postgres database, and
+Google sign-in via Auth.js.
 
 ## Getting started
 
+Copy `.env.example` to `.env.local` and fill in:
+
+- `DATABASE_URL` — a Neon Postgres connection string.
+- `AUTH_SECRET` — generate with `npx auth secret`.
+- `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` — from a Google Cloud OAuth client
+  (see below).
+
+Then:
+
 ```bash
 npm install
+npm run db:push   # create tables from lib/db/schema.ts
+npm run db:seed   # load data/items.json into the item table
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
 
+### Google OAuth setup
+
+1. In [Google Cloud Console](https://console.cloud.google.com/apis/credentials),
+   create an OAuth 2.0 Client ID (Web application).
+2. Add authorized redirect URIs:
+   - `http://localhost:3000/api/auth/callback/google` (local dev)
+   - `https://<your-production-domain>/api/auth/callback/google`
+3. Copy the Client ID/Secret into `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET`.
+
 ## Project structure
 
-- `data/items.json` — the catalog data (name, category, condition, lend type,
-  status, current holder).
+- `lib/db/schema.ts` — Drizzle schema: Auth.js tables (`user`, `account`,
+  `session`, `verificationToken`) plus the `item` catalog table.
+- `lib/db/index.ts` — Neon/Drizzle client.
 - `lib/items.ts` — data-access module (`getAllItems`, `getItemById`,
-  `getAllCategories`). Pages only ever import from here, never the JSON
-  directly, so a future database swap only touches this file.
-- `lib/types.ts` — the `Item` shape.
+  `getAllCategories`), now backed by the database. Pages only ever import
+  from here, never the DB client directly.
+- `auth.ts` — Auth.js config (Google provider, Drizzle adapter).
+- `app/api/auth/[...nextauth]/route.ts` — Auth.js route handlers.
+- `components/SiteHeader.tsx` — shows sign-in/sign-out state.
+- `scripts/seed.ts` — one-time loader from `data/items.json` into Postgres.
 - `app/page.tsx` — catalog home page.
 - `app/items/[id]/page.tsx` — item detail page.
 - `components/Catalog.tsx` — client-side search/category/status filtering.
 
-## Building
-
-```bash
-npm run build
-```
-
-`next.config.ts` sets `output: "export"`, so `npm run build` produces a static
-`out/` directory that can be deployed to Vercel, GitHub Pages, or any static
-host.
-
 ## Roadmap
 
-1. **Static site (current)** — JSON-backed catalog, no backend.
-2. **Database** — move `data/items.json` into Postgres (e.g. Vercel
-   Postgres/Neon) via Prisma; swap the internals of `lib/items.ts` only.
-3. **Auth** — NextAuth.js login for the owner to manage items, and for
-   borrowers to submit and track borrow requests.
+1. ~~Static site~~ — done.
+2. ~~Database~~ — done (Neon Postgres via Drizzle).
+3. ~~Auth~~ — done (Google sign-in via Auth.js). Sign-in doesn't gate
+   anything yet — that's next: restricting item management to the owner,
+   and letting borrowers submit/track requests.
 4. **Payments/reminders** — Stripe for rentals, email/SMS due-date reminders.

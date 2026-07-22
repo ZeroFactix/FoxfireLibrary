@@ -1,9 +1,12 @@
 import Catalog from "@/components/Catalog";
 import { getAllCategories, getAllItems } from "@/lib/items";
 
-export default function Home() {
-  const items = getAllItems();
-  const categories = getAllCategories();
+// Rendered per request so the catalog reflects the current database state.
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const items = await getAllItems();
+  const categories = await getAllCategories();
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-6 py-10 sm:px-10">

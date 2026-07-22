@@ -1,11 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import StatusBadge from "@/components/StatusBadge";
-import { getAllItems, getItemById } from "@/lib/items";
+import { getItemById } from "@/lib/items";
 
-export function generateStaticParams() {
-  return getAllItems().map((item) => ({ id: item.id }));
-}
+// Rendered per request so item data (status, current holder) is always live.
+export const dynamic = "force-dynamic";
 
 export default async function ItemDetailPage({
   params,
@@ -13,7 +12,7 @@ export default async function ItemDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const item = getItemById(id);
+  const item = await getItemById(id);
 
   if (!item) {
     notFound();
