@@ -1,5 +1,6 @@
 "use server";
 
+import { put } from "@vercel/blob";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
@@ -36,7 +37,6 @@ function parseItemInput(formData: FormData): ItemInput {
     name: str(formData, "name"),
     category: str(formData, "category"),
     description: str(formData, "description"),
-    photoUrl: str(formData, "photoUrl") || undefined,
     condition: (str(formData, "condition") as ItemCondition) || "good",
     lendType,
     rentalRate:
@@ -66,9 +66,29 @@ function parseItemInput(formData: FormData): ItemInput {
   return input;
 }
 
+// Resolves the item's photo: a newly uploaded file is stored in Vercel Blob and
+// its URL returned; otherwise the existing photo is kept (or cleared if the
+// owner ticked "remove").
+async function resolvePhotoUrl(formData: FormData): Promise<string | undefined> {
+  if (formData.get("removePhoto") === "on") {
+    return undefined;
+  }
+  const photo = formData.get("photo");
+  if (photo instanceof File && photo.size > 0) {
+    const ext = photo.name.includes(".") ? photo.name.split(".").pop() : "jpg";
+    const blob = await put(`items/${crypto.randomUUID()}.${ext}`, photo, {
+      access: "public",
+    });
+    return blob.url;
+  }
+  return str(formData, "currentPhotoUrl") || undefined;
+}
+
 export async function createItemAction(formData: FormData) {
   await assertOwner();
-  await createItem(parseItemInput(formData));
+  const input = parseItemInput(formData);
+  input.photoUrl = await resolvePhotoUrl(formData);
+  await createItem(input);
   revalidatePath("/");
   revalidatePath("/manage");
   redirect("/manage");
@@ -76,7 +96,9 @@ export async function createItemAction(formData: FormData) {
 
 export async function updateItemAction(id: string, formData: FormData) {
   await assertOwner();
-  await updateItem(id, parseItemInput(formData));
+  const input = parseItemInput(formData);
+  input.photoUrl = await resolvePhotoUrl(formData);
+  await updateItem(id, input);
   revalidatePath("/");
   revalidatePath(`/items/${id}`);
   revalidatePath("/manage");
