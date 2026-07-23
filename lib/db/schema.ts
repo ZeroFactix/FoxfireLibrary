@@ -8,6 +8,7 @@ export const users = pgTable("user", {
   email: text("email").unique(),
   emailVerified: timestamp("emailVerified", { mode: "date" }),
   image: text("image"),
+  tier: text("tier").notNull().default("standard"),
 });
 
 export const accounts = pgTable(

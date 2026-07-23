@@ -45,6 +45,12 @@ export default async function ManagePage() {
         </div>
         <div className="flex items-center gap-2">
           <Link
+            href="/manage/users"
+            className="inline-flex items-center justify-center rounded-full border border-black/15 px-4 py-2 text-sm font-medium transition hover:border-black/40 dark:border-white/20 dark:hover:border-white/40"
+          >
+            Users
+          </Link>
+          <Link
             href="/manage/requests"
             className="inline-flex items-center justify-center rounded-full border border-black/15 px-4 py-2 text-sm font-medium transition hover:border-black/40 dark:border-white/20 dark:hover:border-white/40"
           >

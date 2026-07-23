@@ -4,6 +4,8 @@ import SignInButton from "@/components/auth/SignInButton";
 import RequestActionButton from "@/components/requests/RequestActionButton";
 import { cancelOwnRequestAction } from "@/app/requests/actions";
 import { getRequestsForUser } from "@/lib/requests";
+import { tierGrantsFreeRentals, tierLabel } from "@/lib/tiers";
+import { getUserTier } from "@/lib/users";
 import type { BorrowRequestStatus } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -30,11 +32,20 @@ export default async function MyRequestsPage() {
     );
   }
 
-  const requests = await getRequestsForUser(session.user.id);
+  const [requests, tier] = await Promise.all([
+    getRequestsForUser(session.user.id),
+    getUserTier(session.user.id),
+  ]);
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-6 py-10 sm:px-10">
       <h1 className="text-2xl font-semibold">My reservations</h1>
+
+      {tierGrantsFreeRentals(tier) && (
+        <p className="rounded-lg border border-green-200 bg-green-50 px-4 py-2 text-sm text-green-800 dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-300">
+          You&apos;re a {tierLabel(tier)} member — rentals are free for you.
+        </p>
+      )}
 
       {requests.length === 0 ? (
         <p className="text-black/60 dark:text-white/60">
