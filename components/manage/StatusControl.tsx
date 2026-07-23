@@ -2,9 +2,16 @@
 
 import { useState } from "react";
 import { setStatusAction } from "@/app/manage/actions";
+import Select from "@/components/ui/Select";
 import type { Item, ItemStatus } from "@/lib/types";
 
-const controlClass =
+const STATUS_OPTIONS = [
+  { value: "available", label: "Available" },
+  { value: "lent_out", label: "Lent out" },
+  { value: "reserved", label: "Reserved" },
+];
+
+const inputClass =
   "rounded-md border border-black/15 bg-transparent px-2 py-1 text-xs outline-none focus:border-black/40 dark:border-white/20 dark:focus:border-white/40";
 
 export default function StatusControl({ item }: { item: Item }) {
@@ -13,31 +20,28 @@ export default function StatusControl({ item }: { item: Item }) {
   return (
     <form action={setStatusAction} className="flex flex-wrap items-center gap-2">
       <input type="hidden" name="id" value={item.id} />
-      <select
+      <Select
         name="status"
-        value={status}
-        onChange={(e) => setStatus(e.target.value as ItemStatus)}
-        className={controlClass}
-        aria-label="Status"
-      >
-        <option value="available">Available</option>
-        <option value="lent_out">Lent out</option>
-        <option value="reserved">Reserved</option>
-      </select>
+        ariaLabel="Status"
+        compact
+        defaultValue={item.status}
+        onChange={(value) => setStatus(value as ItemStatus)}
+        options={STATUS_OPTIONS}
+      />
       {status !== "available" && (
         <>
           <input
             name="currentHolderName"
             defaultValue={item.currentHolder?.name}
             placeholder="Who has it"
-            className={controlClass}
+            className={inputClass}
             aria-label="Who has it"
           />
           <input
             name="currentHolderDueBack"
             type="date"
             defaultValue={item.currentHolder?.dueBack}
-            className={controlClass}
+            className={inputClass}
             aria-label="Due back"
           />
         </>

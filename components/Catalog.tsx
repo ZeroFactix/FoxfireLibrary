@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { Item, ItemStatus } from "@/lib/types";
 import ItemCard from "@/components/ItemCard";
+import Select from "@/components/ui/Select";
 
 const STATUS_FILTERS: { label: string; value: ItemStatus | "all" }[] = [
   { label: "All", value: "all" },
@@ -46,18 +47,15 @@ export default function Catalog({
           onChange={(e) => setQuery(e.target.value)}
           className="w-full rounded-md border border-black/15 bg-transparent px-3 py-2 text-sm outline-none focus:border-black/40 dark:border-white/20 dark:focus:border-white/40 sm:max-w-xs"
         />
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="rounded-md border border-black/15 bg-transparent px-3 py-2 text-sm outline-none focus:border-black/40 dark:border-white/20 dark:focus:border-white/40"
-        >
-          <option value="all">All categories</option>
-          {categories.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
+        <Select
+          ariaLabel="Category"
+          defaultValue="all"
+          onChange={setCategory}
+          options={[
+            { value: "all", label: "All categories" },
+            ...categories.map((c) => ({ value: c, label: c })),
+          ]}
+        />
         <div className="flex flex-wrap gap-2">
           {STATUS_FILTERS.map((f) => (
             <button
