@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
@@ -52,6 +53,19 @@ export default async function ItemDetailPage({
         </div>
         <StatusBadge status={item.status} />
       </div>
+
+      {item.photoUrl && (
+        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-black/5 dark:bg-white/10">
+          <Image
+            src={item.photoUrl}
+            alt={item.name}
+            fill
+            sizes="(max-width: 768px) 100vw, 672px"
+            className="object-cover"
+            priority
+          />
+        </div>
+      )}
 
       <p className="text-black/80 dark:text-white/80">{item.description}</p>
 

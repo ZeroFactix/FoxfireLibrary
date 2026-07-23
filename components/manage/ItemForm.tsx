@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import type { Item, ItemStatus, LendType } from "@/lib/types";
@@ -144,10 +145,36 @@ export default function ItemForm({
         />
       </label>
 
-      <label className={labelClass}>
-        Photo URL (optional)
-        <input name="photoUrl" defaultValue={item?.photoUrl} className={inputClass} />
-      </label>
+      <div className={labelClass}>
+        Photo
+        {item?.photoUrl && (
+          <div className="flex items-center gap-3">
+            <div className="relative aspect-[4/3] w-28 overflow-hidden rounded-md bg-black/5 dark:bg-white/10">
+              <Image
+                src={item.photoUrl}
+                alt={item.name}
+                fill
+                sizes="112px"
+                className="object-cover"
+              />
+            </div>
+            <label className="flex items-center gap-2 text-sm font-normal">
+              <input type="checkbox" name="removePhoto" />
+              Remove current photo
+            </label>
+          </div>
+        )}
+        <input type="hidden" name="currentPhotoUrl" value={item?.photoUrl ?? ""} />
+        <input
+          type="file"
+          name="photo"
+          accept="image/*"
+          className="text-sm font-normal file:mr-3 file:rounded-full file:border file:border-black/15 file:bg-transparent file:px-3 file:py-1 file:text-sm dark:file:border-white/20"
+        />
+        <span className="text-xs font-normal text-black/50 dark:text-white/50">
+          {item?.photoUrl ? "Choose a file to replace the current photo." : "Optional. JPG, PNG, etc."}
+        </span>
+      </div>
 
       <div className="flex items-center gap-3">
         <button
