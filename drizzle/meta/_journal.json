@@ -15,6 +15,13 @@
       "when": 1784755029945,
       "tag": "0001_fantastic_klaw",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784766211514,
+      "tag": "0002_safe_energizer",
+      "breakpoints": true
     }
   ]
 }

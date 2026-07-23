@@ -1,0 +1,1 @@
+ALTER TABLE "user" ADD COLUMN "tier" text DEFAULT 'standard' NOT NULL;

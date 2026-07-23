@@ -8,6 +8,8 @@ import ReserveForm from "@/components/requests/ReserveForm";
 import { cancelOwnRequestAction } from "@/app/requests/actions";
 import { getItemById } from "@/lib/items";
 import { getActiveRequestForItem } from "@/lib/requests";
+import { tierGrantsFreeRentals } from "@/lib/tiers";
+import { getUserTier } from "@/lib/users";
 
 // Rendered per request so item data (status, current holder) is always live.
 export const dynamic = "force-dynamic";
@@ -29,6 +31,10 @@ export default async function ItemDetailPage({
   const activeRequest =
     item.status === "available" ? null : await getActiveRequestForItem(item.id);
   const isMine = !!activeRequest && activeRequest.requesterId === userId;
+
+  const viewerTier = userId ? await getUserTier(userId) : "standard";
+  const isRental = item.lendType === "rental" && !!item.rentalRate;
+  const freeForViewer = isRental && tierGrantsFreeRentals(viewerTier);
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-6 py-10 sm:px-10">
@@ -57,9 +63,18 @@ export default async function ItemDetailPage({
         <div>
           <dt className="text-black/50 dark:text-white/50">Cost</dt>
           <dd>
-            {item.lendType === "rental" && item.rentalRate
-              ? `$${item.rentalRate.amount}/${item.rentalRate.period}`
-              : "Free to borrow"}
+            {!isRental ? (
+              "Free to borrow"
+            ) : freeForViewer ? (
+              <span>
+                <span className="line-through text-black/40 dark:text-white/40">
+                  ${item.rentalRate!.amount}/{item.rentalRate!.period}
+                </span>{" "}
+                <span className="font-medium">Free for you</span>
+              </span>
+            ) : (
+              `$${item.rentalRate!.amount}/${item.rentalRate!.period}`
+            )}
           </dd>
         </div>
         {item.currentHolder && (
