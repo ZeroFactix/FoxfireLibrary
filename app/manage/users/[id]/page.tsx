@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { setUserTierAction } from "@/app/manage/users/actions";
 import { isOwner } from "@/lib/owner";
+import Select from "@/components/ui/Select";
 import { getRequestsForUser } from "@/lib/requests";
 import { TIER_KEYS, tierLabel } from "@/lib/tiers";
 import { getUserProfile } from "@/lib/users";
@@ -73,24 +74,21 @@ export default async function UserDetailPage({
           <span className="font-medium">{tierLabel(user.tier)}</span>
         </p>
         <form action={saveTier} className="flex flex-wrap items-end gap-3">
-          <label className="flex flex-col gap-1 text-sm font-medium">
+          <div className="flex flex-col gap-1 text-sm font-medium">
             Change tier
-            <select
-              // Keyed on the saved value so the dropdown re-syncs to the
-              // persisted tier after each save (an uncontrolled select
-              // otherwise keeps its own value across the action's form reset).
+            <Select
+              // Keyed on the saved value so the control re-syncs to the
+              // persisted tier after each save.
               key={user.tier}
               name="tier"
+              ariaLabel="Tier"
               defaultValue={user.tier}
-              className="rounded-md border border-black/15 bg-transparent px-3 py-2 text-sm outline-none focus:border-black/40 dark:border-white/20 dark:focus:border-white/40"
-            >
-              {TIER_KEYS.map((tierKey) => (
-                <option key={tierKey} value={tierKey}>
-                  {tierLabel(tierKey)}
-                </option>
-              ))}
-            </select>
-          </label>
+              options={TIER_KEYS.map((tierKey) => ({
+                value: tierKey,
+                label: tierLabel(tierKey),
+              }))}
+            />
+          </div>
           <button
             type="submit"
             className="inline-flex items-center justify-center rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"

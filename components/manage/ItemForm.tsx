@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import Select from "@/components/ui/Select";
 import type { Item, ItemStatus, LendType } from "@/lib/types";
 
 const inputClass =
@@ -50,28 +51,36 @@ export default function ItemForm({
         />
       </label>
 
-      <label className={labelClass}>
+      <div className={labelClass}>
         Condition
-        <select name="condition" defaultValue={item?.condition ?? "good"} className={inputClass}>
-          <option value="new">New</option>
-          <option value="good">Good</option>
-          <option value="fair">Fair</option>
-          <option value="worn">Worn</option>
-        </select>
-      </label>
+        <Select
+          name="condition"
+          ariaLabel="Condition"
+          className="w-full"
+          defaultValue={item?.condition ?? "good"}
+          options={[
+            { value: "new", label: "New" },
+            { value: "good", label: "Good" },
+            { value: "fair", label: "Fair" },
+            { value: "worn", label: "Worn" },
+          ]}
+        />
+      </div>
 
-      <label className={labelClass}>
+      <div className={labelClass}>
         Lend type
-        <select
+        <Select
           name="lendType"
-          value={lendType}
-          onChange={(e) => setLendType(e.target.value as LendType)}
-          className={inputClass}
-        >
-          <option value="loan">Free loan</option>
-          <option value="rental">Rental</option>
-        </select>
-      </label>
+          ariaLabel="Lend type"
+          className="w-full"
+          defaultValue={item?.lendType ?? "loan"}
+          onChange={(value) => setLendType(value as LendType)}
+          options={[
+            { value: "loan", label: "Free loan" },
+            { value: "rental", label: "Rental" },
+          ]}
+        />
+      </div>
 
       {lendType === "rental" && (
         <div className="flex gap-3">
@@ -85,33 +94,37 @@ export default function ItemForm({
               className={inputClass}
             />
           </label>
-          <label className={`${labelClass} flex-1`}>
+          <div className={`${labelClass} flex-1`}>
             Per
-            <select
+            <Select
               name="rentalRatePeriod"
+              ariaLabel="Rental period"
+              className="w-full"
               defaultValue={item?.rentalRate?.period ?? "day"}
-              className={inputClass}
-            >
-              <option value="day">Day</option>
-              <option value="week">Week</option>
-            </select>
-          </label>
+              options={[
+                { value: "day", label: "Day" },
+                { value: "week", label: "Week" },
+              ]}
+            />
+          </div>
         </div>
       )}
 
-      <label className={labelClass}>
+      <div className={labelClass}>
         Status
-        <select
+        <Select
           name="status"
-          value={status}
-          onChange={(e) => setStatus(e.target.value as ItemStatus)}
-          className={inputClass}
-        >
-          <option value="available">Available</option>
-          <option value="lent_out">Lent out</option>
-          <option value="reserved">Reserved</option>
-        </select>
-      </label>
+          ariaLabel="Status"
+          className="w-full"
+          defaultValue={item?.status ?? "available"}
+          onChange={(value) => setStatus(value as ItemStatus)}
+          options={[
+            { value: "available", label: "Available" },
+            { value: "lent_out", label: "Lent out" },
+            { value: "reserved", label: "Reserved" },
+          ]}
+        />
+      </div>
 
       {status !== "available" && (
         <div className="flex gap-3">
