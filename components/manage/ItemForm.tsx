@@ -2,13 +2,16 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Select from "@/components/ui/Select";
+import { resizeImageFile } from "@/lib/image";
 import type { Item, ItemStatus, LendType } from "@/lib/types";
 
 const inputClass =
   "w-full rounded-md border border-black/15 bg-transparent px-3 py-2 text-sm outline-none focus:border-black/40 dark:border-white/20 dark:focus:border-white/40";
 const labelClass = "flex flex-col gap-1 text-sm font-medium";
+const photoButtonClass =
+  "rounded-full border border-black/15 px-4 py-1.5 text-sm font-medium transition hover:border-black/40 dark:border-white/20 dark:hover:border-white/40";
 
 export default function ItemForm({
   action,
@@ -21,6 +24,46 @@ export default function ItemForm({
 }) {
   const [lendType, setLendType] = useState<LendType>(item?.lendType ?? "loan");
   const [status, setStatus] = useState<ItemStatus>(item?.status ?? "available");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
+
+  function pickPhoto(useCamera: boolean) {
+    const input = fileInputRef.current;
+    if (!input) return;
+    if (useCamera) {
+      input.setAttribute("capture", "environment");
+    } else {
+      input.removeAttribute("capture");
+    }
+    input.click();
+  }
+
+  async function onPhotoSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const original = e.target.files?.[0];
+    if (!original) {
+      setPreview((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return null;
+      });
+      return;
+    }
+    const resized = await resizeImageFile(original);
+    if (fileInputRef.current && resized !== original) {
+      const data = new DataTransfer();
+      data.items.add(resized);
+      fileInputRef.current.files = data.files;
+    }
+    setPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(resized);
+    });
+  }
 
   return (
     <form action={action} className="flex flex-col gap-4">
@@ -160,32 +203,51 @@ export default function ItemForm({
 
       <div className={labelClass}>
         Photo
-        {item?.photoUrl && (
+        {(preview || item?.photoUrl) && (
           <div className="flex items-center gap-3">
             <div className="relative aspect-[4/3] w-28 overflow-hidden rounded-md bg-black/5 dark:bg-white/10">
-              <Image
-                src={item.photoUrl}
-                alt={item.name}
-                fill
-                sizes="112px"
-                className="object-cover"
-              />
+              {preview ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={preview} alt="Selected preview" className="h-full w-full object-cover" />
+              ) : (
+                <Image
+                  src={item!.photoUrl!}
+                  alt={item!.name}
+                  fill
+                  sizes="112px"
+                  className="object-cover"
+                />
+              )}
             </div>
-            <label className="flex items-center gap-2 text-sm font-normal">
-              <input type="checkbox" name="removePhoto" />
-              Remove current photo
-            </label>
+            {item?.photoUrl && !preview && (
+              <label className="flex items-center gap-2 text-sm font-normal">
+                <input type="checkbox" name="removePhoto" />
+                Remove current photo
+              </label>
+            )}
           </div>
         )}
         <input type="hidden" name="currentPhotoUrl" value={item?.photoUrl ?? ""} />
         <input
+          ref={fileInputRef}
           type="file"
           name="photo"
           accept="image/*"
-          className="text-sm font-normal file:mr-3 file:rounded-full file:border file:border-black/15 file:bg-transparent file:px-3 file:py-1 file:text-sm dark:file:border-white/20"
+          onChange={onPhotoSelected}
+          className="hidden"
         />
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={() => pickPhoto(true)} className={photoButtonClass}>
+            📷 Take photo
+          </button>
+          <button type="button" onClick={() => pickPhoto(false)} className={photoButtonClass}>
+            Choose file
+          </button>
+        </div>
         <span className="text-xs font-normal text-black/50 dark:text-white/50">
-          {item?.photoUrl ? "Choose a file to replace the current photo." : "Optional. JPG, PNG, etc."}
+          {preview
+            ? "New photo ready — save to apply."
+            : "Optional. Take a photo on your phone, or choose a file."}
         </span>
       </div>
 
