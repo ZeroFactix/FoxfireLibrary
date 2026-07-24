@@ -1,10 +1,19 @@
+import { auth } from "@/auth";
 import Catalog from "@/components/Catalog";
+import Landing from "@/components/Landing";
 import { getAllCategories, getAllItems } from "@/lib/items";
 
 // Rendered per request so the catalog reflects the current database state.
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
+  const session = await auth();
+
+  // The catalog is only for signed-in members; everyone else gets the landing.
+  if (!session?.user) {
+    return <Landing />;
+  }
+
   const items = await getAllItems();
   const categories = await getAllCategories();
 

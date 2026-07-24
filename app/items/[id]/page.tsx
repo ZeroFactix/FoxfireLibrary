@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import SignInButton from "@/components/auth/SignInButton";
 import StatusBadge from "@/components/StatusBadge";
@@ -20,6 +20,12 @@ export default async function ItemDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const session = await auth();
+  // Item pages are part of the catalog, which is members-only.
+  if (!session?.user) {
+    redirect("/");
+  }
+
   const { id } = await params;
   const item = await getItemById(id);
 
@@ -27,8 +33,7 @@ export default async function ItemDetailPage({
     notFound();
   }
 
-  const session = await auth();
-  const userId = session?.user?.id;
+  const userId = session.user.id;
   const activeRequest =
     item.status === "available" ? null : await getActiveRequestForItem(item.id);
   const isMine = !!activeRequest && activeRequest.requesterId === userId;
