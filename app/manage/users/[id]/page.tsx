@@ -19,6 +19,26 @@ const STATUS_LABEL: Record<BorrowRequestStatus, string> = {
   cancelled: "Cancelled",
 };
 
+const MONTHS = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+
+// UTC-based so server and client render the same string (no hydration mismatch).
+function formatDate(iso: string): string {
+  const d = new Date(iso);
+  return `${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-black/10 p-3 dark:border-white/15">
+      <dt className="text-xs text-black/50 dark:text-white/50">{label}</dt>
+      <dd className="mt-0.5 font-medium">{value}</dd>
+    </div>
+  );
+}
+
 export default async function UserDetailPage({
   params,
 }: {
@@ -40,6 +60,12 @@ export default async function UserDetailPage({
   }
 
   const saveTier = setUserTierAction.bind(null, user.id);
+
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const held = history.filter(
+    (r) => r.status === "active" || r.status === "lent_out"
+  );
+  const overdue = held.filter((r) => r.endDate && r.endDate < todayStr);
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-6 py-10 sm:px-10">
@@ -67,6 +93,65 @@ export default async function UserDetailPage({
           <p className="text-black/60 dark:text-white/60">{user.email}</p>
         </div>
       </div>
+
+      <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
+        <Stat label="Member since" value={formatDate(user.createdAt)} />
+        <Stat
+          label="Last reservation"
+          value={history[0] ? formatDate(history[0].createdAt) : "Never"}
+        />
+        <Stat label="Total reservations" value={String(history.length)} />
+        <Stat label="Currently holding" value={String(held.length)} />
+        <div
+          className={`rounded-lg border p-3 ${
+            overdue.length > 0
+              ? "border-red-300 dark:border-red-500/40"
+              : "border-black/10 dark:border-white/15"
+          }`}
+        >
+          <dt className="text-xs text-black/50 dark:text-white/50">Overdue</dt>
+          <dd
+            className={`mt-0.5 font-medium ${
+              overdue.length > 0 ? "text-red-700 dark:text-red-400" : ""
+            }`}
+          >
+            {overdue.length}
+          </dd>
+        </div>
+      </dl>
+
+      {held.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <h2 className="text-sm font-semibold text-black/70 dark:text-white/70">
+            Currently holding
+          </h2>
+          {held.map((request) => {
+            const isOverdue = !!request.endDate && request.endDate < todayStr;
+            return (
+              <div
+                key={request.id}
+                className="flex items-center justify-between gap-3 rounded-lg border border-black/10 p-3 text-sm dark:border-white/15"
+              >
+                <Link href={`/items/${request.itemId}`} className="font-medium hover:underline">
+                  {request.itemName}
+                </Link>
+                <span
+                  className={
+                    isOverdue
+                      ? "text-red-700 dark:text-red-400"
+                      : "text-black/60 dark:text-white/60"
+                  }
+                >
+                  {STATUS_LABEL[request.status]}
+                  {request.endDate
+                    ? ` · due ${request.endDate}${isOverdue ? " (overdue)" : ""}`
+                    : ""}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       <div className="flex flex-col gap-3 rounded-lg border border-black/10 p-4 dark:border-white/15">
         <p className="text-sm">

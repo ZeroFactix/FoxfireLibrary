@@ -19,6 +19,7 @@ export type UserProfile = {
   email?: string;
   image?: string;
   tier: string;
+  createdAt: string;
 };
 
 export async function getAllUsers(): Promise<UserSummary[]> {
@@ -49,6 +50,7 @@ export async function getAllUsers(): Promise<UserSummary[]> {
       email: user.email ?? undefined,
       image: user.image ?? undefined,
       tier: user.tier,
+      createdAt: user.createdAt.toISOString(),
       totalReservations: counts.get(user.id)?.total ?? 0,
       openReservations: counts.get(user.id)?.open ?? 0,
     }))
@@ -67,6 +69,7 @@ export async function getUserProfile(id: string): Promise<UserProfile | null> {
     email: user.email ?? undefined,
     image: user.image ?? undefined,
     tier: user.tier,
+    createdAt: user.createdAt.toISOString(),
   };
 }
 
