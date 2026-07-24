@@ -15,38 +15,46 @@ export default async function SiteHeader() {
   const openRequests = owner ? await countOpenRequests() : 0;
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl items-center justify-end gap-3 px-6 pt-6 sm:px-10">
-      {session?.user ? (
-        <div className="flex items-center gap-3 text-sm">
-          {owner ? (
-            <>
-              <Link href="/manage" className={navLinkClass}>
-                Manage
+    <header className="border-b border-black/10 dark:border-white/15">
+      <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-3 px-6 py-4 sm:px-10">
+        <Link
+          href="/"
+          className="text-lg font-semibold tracking-tight transition hover:opacity-80"
+        >
+          🦊 Foxfire Library
+        </Link>
+        {session?.user ? (
+          <div className="flex items-center gap-3 text-sm">
+            {owner ? (
+              <>
+                <Link href="/manage" className={navLinkClass}>
+                  Manage
+                </Link>
+                <Link href="/manage/requests" className={navLinkClass}>
+                  Requests{openRequests > 0 ? ` (${openRequests})` : ""}
+                </Link>
+              </>
+            ) : (
+              <Link href="/requests" className={navLinkClass}>
+                My reservations
               </Link>
-              <Link href="/manage/requests" className={navLinkClass}>
-                Requests{openRequests > 0 ? ` (${openRequests})` : ""}
-              </Link>
-            </>
-          ) : (
-            <Link href="/requests" className={navLinkClass}>
-              My reservations
-            </Link>
-          )}
-          {session.user.image && (
-            <Image
-              src={session.user.image}
-              alt={session.user.name ?? "Signed in user"}
-              width={28}
-              height={28}
-              className="rounded-full"
-            />
-          )}
-          <span className="text-black/70 dark:text-white/70">{session.user.name}</span>
-          <SignOutButton />
-        </div>
-      ) : (
-        <SignInButton />
-      )}
-    </div>
+            )}
+            {session.user.image && (
+              <Image
+                src={session.user.image}
+                alt={session.user.name ?? "Signed in user"}
+                width={28}
+                height={28}
+                className="rounded-full"
+              />
+            )}
+            <span className="text-black/70 dark:text-white/70">{session.user.name}</span>
+            <SignOutButton />
+          </div>
+        ) : (
+          <SignInButton />
+        )}
+      </div>
+    </header>
   );
 }
